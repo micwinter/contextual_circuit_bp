@@ -6,6 +6,15 @@ from ops.data_to_tfrecords import data_to_tfrecords
 
 
 def encode_dataset(dataset):
+    """
+    Encodes a dataset of cells to tfrecords by name.
+
+    Parameters
+    ----------
+    dataset : string
+        Name of dataset to be encoded. Dataset should be found in
+        /dataset_processing and have its own 'init' function.
+    """
     config = Config()
     data_class = py_utils.import_module(dataset)
     data_proc = data_class.data_processing()

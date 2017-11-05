@@ -1,4 +1,4 @@
-"""Project config file."""
+"""Project config file. Modified from config.py.template file."""
 import os
 from utils import py_utils
 
@@ -20,22 +20,21 @@ class Config:
     checkpoints : string
         Directory to checkpoints.
     summaries : string
+        Directory to summaries.
     experiment_evaluations : string
+        Directory to experiment evaluations.
     condition_evaluations : string
+        Directory to condition evaluations.
     visualizations : string
+        Directory to visualizations.
     plots : string
+        Directory to plots.
     log_dir : string
+        Directory to log files.
     dataset_info : string
         Local dataset classes.
     db_ssh_forward : bool
         Whether or not to use ssh forwarding to access the databset.
-
-    Methods
-    -------
-    __getitem__(self, name)
-        Get item from class.
-    __contains__(self, name)
-        Check if class contains field.
     """
 
     def __init__(self, **kwargs):

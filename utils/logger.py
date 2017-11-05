@@ -8,7 +8,7 @@ Usage:
 
     import logger
     log = logger.get('../logs/sample_log')
-    
+
     log.info('Hello world!')
     log.info('Hello again!', verbose=2)
     log.warning('Something might be wrong.')
@@ -67,7 +67,7 @@ class Logger(object):
     Constructs a logger with optional log file output.
 
     Args:
-        filename: optional log file output. If None, nothing will be 
+        filename: optional log file output. If None, nothing will be
         written to file
     """
     now = datetime.datetime.now()
@@ -113,8 +113,8 @@ class Logger(object):
     Args:
         message: string, message content.
         typ: string, type of the message. info, warning, error, or fatal.
-        verbose: number, verbose level of the message. If lower than the 
-        environment variable, then the message will be logged to standard 
+        verbose: number, verbose level of the message. If lower than the
+        environment variable, then the message will be logged to standard
         output and log output file (if set).
     """
     threadstr = '{}'.format(threading.current_thread().ident)[-4:]
