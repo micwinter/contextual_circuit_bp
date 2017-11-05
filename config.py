@@ -4,7 +4,39 @@ from utils import py_utils
 
 
 class Config:
-    """Config class with global project variables."""
+    """
+    Config class with global project variables.
+
+    ...
+
+    Attributes
+    ----------
+    data_root : string
+        Directory to root of dataset.
+    project_directory : string
+        Directory to root of project.
+    tf_records : string
+        Directory to tr_records.
+    checkpoints : string
+        Directory to checkpoints.
+    summaries : string
+    experiment_evaluations : string
+    condition_evaluations : string
+    visualizations : string
+    plots : string
+    log_dir : string
+    dataset_info : string
+        Local dataset classes.
+    db_ssh_forward : bool
+        Whether or not to use ssh forwarding to access the databset.
+
+    Methods
+    -------
+    __getitem__(self, name)
+        Get item from class.
+    __contains__(self, name)
+        Check if class contains field.
+    """
 
     def __init__(self, **kwargs):
         """Global config file for normalization experiments."""
