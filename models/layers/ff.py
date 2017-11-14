@@ -1,11 +1,13 @@
 """Functions for handling feedforward and pooling operations."""
 import numpy as np
+import scipy as sp # scipy for gabor function
 import tensorflow as tf
 from ops import initialization
 from models.layers.activations import activations
 from models.layers.normalizations import normalizations
 from models.layers.ff_functions import ff as ff_fun
 from models.layers import pool
+import scipy.stats as st
 
 
 class ff(object):
@@ -617,6 +619,80 @@ def sparse_pool_layer(
             bottom * spatial_weights, reduction_indices=[1, 2])
         output = tf.matmul(spatial_sparse, channel_weights)
         return self, output
+
+def conv2d_gabor_layer(
+        self,
+        bottom,
+        out_channels,
+        name,
+        in_channels=None,
+        filter_size=3,
+        stride=[1, 1, 1, 1],
+        padding='SAME'):
+    """2D convolutional layer with gabor filter and theta parameter."""
+    with tf.variable_scope(name):
+        if in_channels is None:
+            in_channels = int(bottom.get_shape()[-1]) # size one axis of input image
+        # self, filt, conv_biases = get_conv_var(
+        #     self=self,
+        #     filter_size=filter_size,
+        #     in_channels=in_channels,
+        #     out_channels=out_channels,
+        #     name=name)
+        # filt_sizes =  [3,5,7,9,11,13,15,17] # kernel size
+        freq = [2, 1, 0.8, 0.5, 0.4, 0.3, 0.25, 0.22] # maps to kernel sizes above
+        theta = [np.pi/4 * float(x) for x in range(8)] 
+        filt = []
+        for t in theta
+            for f in freq 
+                gabor = np.real(gabor_kernel(f, t))
+                if len(gabor) != 17:
+                    np.pad(gabor, (17-len(gabor))/2, 'constant')
+                filt.append(gabor)
+        filt = np.stack(filt)
+        conv = tf.nn.conv2d(bottom, filt, stride, padding=padding)
+        # bias = tf.nn.bias_add(conv, conv_biases)
+        # return self, bias # don't need bias because of gabor filter and frozen layer
+        return self, conv
+
+def conv2d_dog_layer(
+        self,
+        bottom,
+        layer_weights,
+        name,
+        init_weight=10.,
+        model_dtype=tf.float32,
+        stride=[1, 1, 1, 1],
+        padding='SAME'):
+
+    def gkern(kernlen=21, nsig=3):
+        """Returns a 2D Gaussian kernel array."""
+
+        interval = (2*nsig+1.)/(kernlen)
+        x = np.linspace(-nsig-interval/2., nsig+interval/2., kernlen+1)
+        kern1d = np.diff(st.norm.cdf(x))
+        kernel_raw = np.sqrt(np.outer(kern1d, kern1d))
+        kernel = kernel_raw/kernel_raw.sum()
+        return kernel
+
+    with tf.variable_scope(name):
+        """Antilok et al 2016 difference of gaussians."""
+        """2D convolutional layer with DoG filter and width and weights parameters."""
+        weights = [.5, 1, 1.5, 2]
+        sizes1 = [.25,.5,.75,1] # center
+        sizes2 = [1.5,2,2.5,3] # surround
+        dogs = []
+        for w1 in weights:
+            for w2 in weights:
+                for s1 in sizes1:
+                    for s2 in sizes2:
+                        gkern1 = gkern(kernlen = 5, nsig=s1)
+                        gkern2 = gkern(kernlen = 5, nsig=s2)
+                        dog = w1 * gkern1 - w2 * gkern2
+                        dogs.append(dogs)
+        filt = np.stack(dogs)
+        conv = tf.nn.conv2d(bottom, filt, stride, padding=padding)
+        return self,conv
 
 
 def get_conv_var(
